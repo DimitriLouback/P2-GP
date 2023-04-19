@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Atendente {
+  id       String @id @default(cuid())
+  nome     String
+  email    String
+  telefone String
+
+  solicitacoes Solicitacao[]
+}
+
+model Solicitacao {
+  id          String   @id @default(cuid())
+  data        DateTime @default(now())
+  nomeCliente String
+  descricao   String
+  status      String
+  nota        Int
+  atendenteId String
+
+
+  componentes Componente[]
+  atendente   Atendente    @relation(fields: [atendenteId], references: [id])
+}
+
+model Componente {
+  id            String  @id @default(cuid())
+  tipo          String
+  nome          String
+  status        String
+  solicitacaoId String?
+
+
+  historicoComponente HistoricoComponente[]
+  solicitacao         Solicitacao?          @relation(fields: [solicitacaoId], references: [id])
+}
+
+model HistoricoComponente {
+  id           String   @id @default(cuid())
+  data         DateTime @default(now())
+  evento       String
+  componenteId String
+
+
+  componente Componente @relation(fields: [componenteId], references: [id])
+}
